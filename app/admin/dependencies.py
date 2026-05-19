@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_session
 from app.models import User
+from app.models.user import UserRole
 from app.services.auth_service import decode_access_token
 
 
@@ -38,4 +39,13 @@ async def get_current_user(
             headers={"Location": "/admin/login"},
         )
 
+    return user
+
+
+async def require_admin(user: User = Depends(get_current_user)) -> User:
+    if user.role != UserRole.ADMIN:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Доступ запрещён: требуются права администратора",
+        )
     return user

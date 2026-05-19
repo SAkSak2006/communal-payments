@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_session
 from app.models import User, PaymentPeriod, Resident, Address, Charge, Payment, Tariff, UtilityService
-from app.admin.dependencies import get_current_user
+from app.admin.dependencies import get_current_user, require_admin
 from app.services.billing_service import calculate_charges_for_period, get_charges_for_period
 
 router = APIRouter()
@@ -64,7 +64,7 @@ async def charges_list(
 async def calculate_charges(
     year: int,
     month: int,
-    user: User = Depends(get_current_user),
+    user: User = Depends(require_admin),
     session: AsyncSession = Depends(get_session),
 ):
     period = await _ensure_period(session, year, month)
@@ -86,7 +86,7 @@ async def calculate_charges(
 async def close_period(
     year: int,
     month: int,
-    user: User = Depends(get_current_user),
+    user: User = Depends(require_admin),
     session: AsyncSession = Depends(get_session),
 ):
     period = await _ensure_period(session, year, month)

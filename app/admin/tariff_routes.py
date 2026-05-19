@@ -10,7 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_session
 from app.models import User, Tariff, UtilityService
-from app.admin.dependencies import get_current_user
+from app.admin.dependencies import get_current_user, require_admin
 
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
@@ -47,7 +47,7 @@ async def tariffs_list(
 @router.get("/create", response_class=HTMLResponse)
 async def tariff_create_form(
     request: Request,
-    user: User = Depends(get_current_user),
+    user: User = Depends(require_admin),
     session: AsyncSession = Depends(get_session),
 ):
     result = await session.execute(select(UtilityService).order_by(UtilityService.name))
@@ -65,7 +65,7 @@ async def tariff_create(
     service_id: int = Form(...),
     price_per_unit: float = Form(...),
     effective_from: date = Form(...),
-    user: User = Depends(get_current_user),
+    user: User = Depends(require_admin),
     session: AsyncSession = Depends(get_session),
 ):
     # Auto-close previous active tariff for this service

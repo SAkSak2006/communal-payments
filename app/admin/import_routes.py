@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_session
 from app.models import User
-from app.admin.dependencies import get_current_user
+from app.admin.dependencies import get_current_user, require_admin
 from app.services.import_service import (
     import_residents_from_excel,
     import_readings_from_excel,
@@ -28,7 +28,7 @@ class UserInfo:
 @router.get("/", response_class=HTMLResponse)
 async def import_page(
     request: Request,
-    user: User = Depends(get_current_user),
+    user: User = Depends(require_admin),
 ):
     return templates.TemplateResponse("import.html", {
         "request": request, "user": user, "active": "import",
@@ -40,7 +40,7 @@ async def import_page(
 async def import_residents(
     request: Request,
     file: UploadFile = File(...),
-    user: User = Depends(get_current_user),
+    user: User = Depends(require_admin),
     session: AsyncSession = Depends(get_session),
 ):
     # Snapshot user BEFORE commit expires it
@@ -65,7 +65,7 @@ async def import_residents(
 async def import_readings(
     request: Request,
     file: UploadFile = File(...),
-    user: User = Depends(get_current_user),
+    user: User = Depends(require_admin),
     session: AsyncSession = Depends(get_session),
 ):
     user_info = UserInfo(user)

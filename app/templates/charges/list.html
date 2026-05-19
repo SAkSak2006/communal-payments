@@ -38,6 +38,7 @@
                     <i class="bi bi-funnel"></i> Показать
                 </button>
             </div>
+            {% if user.role and user.role.value == 'admin' %}
             <div class="col-md-2">
                 <a href="/admin/charges/calculate?year={{ year }}&month={{ month }}"
                    class="btn btn-success w-100"
@@ -58,6 +59,15 @@
                 </span>
                 {% endif %}
             </div>
+            {% else %}
+            <div class="col-md-4">
+                {% if period and period.is_closed %}
+                <span class="btn btn-secondary disabled">
+                    <i class="bi bi-lock-fill"></i> Период закрыт
+                </span>
+                {% endif %}
+            </div>
+            {% endif %}
             <div class="col-md-2">
                 <a href="/admin/charges/notify?year={{ year }}&month={{ month }}"
                    class="btn btn-info w-100 text-white"
