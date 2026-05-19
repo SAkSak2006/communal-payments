@@ -1,5 +1,5 @@
 import asyncio
-from app.database import async_session_maker
+from app.database import async_session
 from app.models.user import User
 from passlib.context import CryptContext
 
@@ -7,7 +7,7 @@ pwd = CryptContext(schemes=["bcrypt"])
 
 
 async def create_admin():
-    async with async_session_maker() as session:
+    async with async_session() as session:
         user = User(
             username="admin",
             hashed_password=pwd.hash("admin123"),
