@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}Регистрация счётчика{% endblock %}
+{% block breadcrumb %}Счётчики / Регистрация{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <h2 class="mb-1">Регистрация счётчика</h2>
+    <p class="text-muted mb-0" style="font-size:.875rem;">Добавление нового прибора учёта</p>
+</div>
+
+<div class="card card-dashboard">
+    <div class="card-body">
+        <form method="post">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label for="address_id" class="form-label">Адрес *</label>
+                    <select class="form-select" id="address_id" name="address_id" required>
+                        {% for a in addresses %}
+                        <option value="{{ a.id }}">
+                            {{ a.city }}, {{ a.street }}, д. {{ a.building }}, кв. {{ a.apartment }}
+                            ({{ a.resident_name }})
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label for="service_id" class="form-label">Услуга *</label>
+                    <select class="form-select" id="service_id" name="service_id" required>
+                        {% for s in services %}
+                        {% if s.has_meter %}
+                        <option value="{{ s.id }}">{{ s.name }}</option>
+                        {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="serial_number" class="form-label">Серийный номер *</label>
+                    <input type="text" class="form-control" id="serial_number" name="serial_number" required>
+                </div>
+                <div class="col-md-4">
+                    <label for="installation_date" class="form-label">Дата установки</label>
+                    <input type="date" class="form-control" id="installation_date" name="installation_date">
+                </div>
+                <div class="col-md-4">
+                    <label for="verification_date" class="form-label">Дата поверки</label>
+                    <input type="date" class="form-control" id="verification_date" name="verification_date">
+                </div>
+            </div>
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check-lg"></i> Зарегистрировать
+                </button>
+                <a href="/admin/meters" class="btn btn-secondary">Отмена</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

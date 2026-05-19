@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}Отчёт за {{ '%02d'|format(month) }}.{{ year }}{% endblock %}
+{% block breadcrumb %}Отчёты / Период{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-end mb-4">
+    <div>
+        <h2 class="mb-1">Отчёт за {{ '%02d'|format(month) }}.{{ year }}</h2>
+        <p class="text-muted mb-0" style="font-size:.875rem;">Сводка по начислениям и оплатам</p>
+    </div>
+    <a href="/admin/reports" class="btn btn-secondary">Назад</a>
+</div>
+
+<!-- Summary cards -->
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="card card-dashboard">
+            <div class="card-body text-center">
+                <h6 class="text-muted">Начислено</h6>
+                <h3 class="text-primary">{{ "{:,.2f}".format(report.total_charged).replace(",", " ") }} &#8381;</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card card-dashboard">
+            <div class="card-body text-center">
+                <h6 class="text-muted">Оплачено</h6>
+                <h3 class="text-success">{{ "{:,.2f}".format(report.total_paid).replace(",", " ") }} &#8381;</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card card-dashboard">
+            <div class="card-body text-center">
+                <h6 class="text-muted">Задолженность</h6>
+                <h3 class="text-{{ 'danger' if report.debt > 0 else 'success' }}">
+                    {{ "{:,.2f}".format(report.debt).replace(",", " ") }} &#8381;
+                </h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- By service breakdown -->
+<div class="card card-dashboard">
+    <div class="card-header bg-white">
+        <h5 class="mb-0">Начисления по услугам</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Услуга</th>
+                        <th>Кол-во начислений</th>
+                        <th>Общее потребление</th>
+                        <th>Сумма</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for s in report.by_service %}
+                    <tr>
+                        <td>{{ s.service_name }}</td>
+                        <td>{{ s.count }}</td>
+                        <td>{{ s.total_consumption }}</td>
+                        <td><strong>{{ "{:,.2f}".format(s.total_amount).replace(",", " ") }}</strong> &#8381;</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="4" class="text-center text-muted">Нет данных</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

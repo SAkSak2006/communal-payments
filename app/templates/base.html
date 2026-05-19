@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Панель управления{% endblock %} — ЖКУ</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="/static/css/style.css?v={{ range(100000)|random }}" rel="stylesheet">
+</head>
+<body>
+    <div class="d-flex">
+        <!-- Sidebar -->
+        <nav class="sidebar d-flex flex-column p-3" style="width: 250px;">
+            <a href="/admin/" class="text-white text-decoration-none mb-4">
+                <h5><i class="bi bi-house-gear"></i> ЖКУ Платформа</h5>
+                <div style="font-size:.625rem;color:#94a3b8;text-transform:uppercase;letter-spacing:.08em;margin-top:-4px;">Панель управления</div>
+            </a>
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link {% if active == 'dashboard' %}active{% endif %}" href="/admin/">
+                        <i class="bi bi-speedometer2"></i> <span>Дашборд</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if active == 'residents' %}active{% endif %}" href="/admin/residents">
+                        <i class="bi bi-people"></i> <span>Жители</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if active == 'tariffs' %}active{% endif %}" href="/admin/tariffs">
+                        <i class="bi bi-cash-stack"></i> <span>Тарифы</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if active == 'meters' %}active{% endif %}" href="/admin/meters">
+                        <i class="bi bi-speedometer"></i> <span>Счётчики</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if active == 'readings' %}active{% endif %}" href="/admin/readings">
+                        <i class="bi bi-clipboard-data"></i> <span>Показания</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if active == 'payments' %}active{% endif %}" href="/admin/payments">
+                        <i class="bi bi-credit-card"></i> <span>Платежи</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if active == 'charges' %}active{% endif %}" href="/admin/charges">
+                        <i class="bi bi-calculator"></i> <span>Начисления</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if active == 'reports' %}active{% endif %}" href="/admin/reports">
+                        <i class="bi bi-file-earmark-bar-graph"></i> <span>Отчёты</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if active == 'import' %}active{% endif %}" href="/admin/import">
+                        <i class="bi bi-cloud-upload"></i> <span>Импорт</span>
+                    </a>
+                </li>
+            </ul>
+            <hr class="text-white">
+            <div class="mt-auto">
+                <a href="#" class="d-flex align-items-center text-decoration-none" style="color:#94a3b8;font-size:.875rem;padding:6px 0;">
+                    <i class="bi bi-person-circle" style="margin-right:8px;font-size:1.1rem;"></i> <span>{{ user.full_name }}</span>
+                </a>
+                <a href="/admin/logout" class="d-flex align-items-center text-decoration-none" style="color:#94a3b8;font-size:.875rem;padding:6px 0;">
+                    <i class="bi bi-box-arrow-right" style="margin-right:8px;font-size:1.1rem;color:#f87171;"></i> <span>Выйти</span>
+                </a>
+            </div>
+        </nav>
+
+        <!-- Main content -->
+        <main class="flex-grow-1" style="min-height:100vh;background:#f7f9fb;">
+            <!-- Top bar -->
+            <div style="position:sticky;top:0;z-index:30;background:rgba(247,249,251,.85);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);padding:.75rem 1.5rem;display:flex;align-items:center;justify-content:space-between;">
+                <div style="display:flex;align-items:center;gap:.5rem;font-size:.8125rem;color:#727785;">
+                    <span>Главная</span>
+                    <span style="color:#c2c6d6;">/</span>
+                    <span style="color:#0058be;font-weight:600;">{% block breadcrumb %}Панель{% endblock %}</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:1rem;">
+                    <button style="width:36px;height:36px;border-radius:50%;border:none;background:transparent;color:#424754;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.2rem;" title="Уведомления"><i class="bi bi-bell"></i></button>
+                    <button style="width:36px;height:36px;border-radius:50%;border:none;background:transparent;color:#424754;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.2rem;" title="Настройки"><i class="bi bi-gear"></i></button>
+                    <div style="display:flex;align-items:center;gap:.75rem;padding-left:1rem;border-left:1px solid #c2c6d6;">
+                        <div style="text-align:right;">
+                            <div style="font-size:.8125rem;font-weight:600;color:#191c1e;line-height:1.2;">{{ user.full_name }}</div>
+                            <div style="font-size:.625rem;color:#727785;text-transform:uppercase;letter-spacing:.04em;">{{ user.role.value if user.role else 'Оператор' }}</div>
+                        </div>
+                        <div style="width:34px;height:34px;border-radius:50%;background:#d8e2ff;color:#0058be;font-weight:700;font-size:.8rem;display:flex;align-items:center;justify-content:center;">{{ user.full_name[:1] if user.full_name else 'A' }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-4">
+                {% if error %}
+                <div class="alert alert-danger alert-dismissible fade show">
+                    {{ error }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {% endif %}
+                {% if success %}
+                <div class="alert alert-success alert-dismissible fade show">
+                    {{ success }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {% endif %}
+
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

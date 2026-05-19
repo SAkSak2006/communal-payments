@@ -1,0 +1,40 @@
+# Web framework
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+
+# Database
+sqlalchemy[asyncio]==2.0.36
+asyncpg==0.30.0
+alembic==1.14.1
+
+# Telegram bot
+aiogram==3.15.0
+
+# Auth
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+
+# Configuration
+pydantic-settings==2.7.1
+python-dotenv==1.0.1
+
+# Templates
+jinja2==3.1.5
+python-multipart==0.0.20
+
+# Scheduler
+apscheduler==3.10.4
+
+# Excel export
+openpyxl==3.1.5
+
+# PDF generation
+reportlab==4.2.5
+
+# Testing
+pytest==8.3.4
+pytest-asyncio==0.25.0
+httpx==0.28.1
+
+# Static files
+aiofiles==24.1.0

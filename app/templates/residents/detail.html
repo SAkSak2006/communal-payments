@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}{{ resident.full_name }}{% endblock %}
+{% block breadcrumb %}Жители / {{ resident.full_name }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-end mb-4">
+    <div>
+        <h2 class="mb-1">{{ resident.full_name }}</h2>
+        <p class="text-muted mb-0" style="font-size:.875rem;">Карточка жителя</p>
+    </div>
+    <div>
+        <a href="/admin/residents/{{ resident.id }}/edit" class="btn btn-outline-secondary">
+            <i class="bi bi-pencil"></i> Редактировать
+        </a>
+        <a href="/admin/residents" class="btn btn-secondary">Назад</a>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Info card -->
+    <div class="col-md-4">
+        <div class="card card-dashboard">
+            <div class="card-header bg-white"><h5 class="mb-0">Информация</h5></div>
+            <div class="card-body">
+                <p><strong>Лицевой счёт:</strong> <code>{{ resident.personal_account }}</code></p>
+                <p><strong>Телефон:</strong> {{ resident.phone }}</p>
+                <p><strong>Telegram:</strong>
+                    {% if resident.telegram_id %}
+                    <span class="badge bg-success">{{ resident.telegram_username or resident.telegram_id }}</span>
+                    {% else %}
+                    <span class="badge bg-secondary">Не привязан</span>
+                    {% endif %}
+                </p>
+                <p><strong>Статус:</strong>
+                    {% if resident.is_verified %}
+                    <span class="badge bg-success">Верифицирован</span>
+                    {% else %}
+                    <span class="badge bg-warning">Не верифицирован</span>
+                    {% endif %}
+                </p>
+                <p><strong>Задолженность:</strong>
+                    <span class="fs-5 fw-bold text-{{ 'danger' if debt > 0 else 'success' }}">
+                        {{ "{:,.2f}".format(debt).replace(",", " ") }} &#8381;
+                    </span>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Addresses -->
+    <div class="col-md-8">
+        <div class="card card-dashboard">
+            <div class="card-header bg-white"><h5 class="mb-0">Адреса</h5></div>
+            <div class="card-body">
+                {% for addr in addresses %}
+                <div class="border rounded p-3 mb-2">
+                    <strong>{{ addr.city }}, {{ addr.street }}, д. {{ addr.building }}, кв. {{ addr.apartment }}</strong>
+                    <span class="text-muted">({{ addr.area_sqm }} м²)</span>
+                </div>
+                {% else %}
+                <p class="text-muted">Нет адресов</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent payments -->
+    <div class="col-12">
+        <div class="card card-dashboard">
+            <div class="card-header bg-white"><h5 class="mb-0">Последние платежи</h5></div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr><th>Дата</th><th>Сумма</th><th>Способ</th><th>Квитанция</th></tr>
+                        </thead>
+                        <tbody>
+                            {% for p in recent_payments %}
+                            <tr>
+                                <td>{{ p.payment_date.strftime('%d.%m.%Y') }}</td>
+                                <td>{{ "{:,.2f}".format(p.amount).replace(",", " ") }} &#8381;</td>
+                                <td>{{ p.payment_method }}</td>
+                                <td>{{ p.receipt_number or '—' }}</td>
+                            </tr>
+                            {% else %}
+                            <tr><td colspan="4" class="text-center text-muted">Нет платежей</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

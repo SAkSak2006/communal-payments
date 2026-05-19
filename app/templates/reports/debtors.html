@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}Должники{% endblock %}
+{% block breadcrumb %}Отчёты / Должники{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-end mb-4">
+    <div>
+        <h2 class="mb-1">Должники</h2>
+        <p class="text-muted mb-0" style="font-size:.875rem;">Жители с непогашенной задолженностью</p>
+    </div>
+    <div>
+        <a href="/admin/reports/debtors/excel" class="btn btn-outline-success">
+            <i class="bi bi-file-earmark-excel"></i> Скачать Excel
+        </a>
+        <a href="/admin/reports" class="btn btn-secondary">Назад</a>
+    </div>
+</div>
+
+<div class="card card-dashboard">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Житель</th>
+                        <th>Лиц. счёт</th>
+                        <th>Начислено</th>
+                        <th>Оплачено</th>
+                        <th>Задолженность</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for d in debtors %}
+                    <tr>
+                        <td>{{ d.full_name }}</td>
+                        <td><code>{{ d.personal_account }}</code></td>
+                        <td>{{ "{:,.2f}".format(d.charged).replace(",", " ") }} &#8381;</td>
+                        <td>{{ "{:,.2f}".format(d.paid).replace(",", " ") }} &#8381;</td>
+                        <td>
+                            <strong class="text-danger">{{ "{:,.2f}".format(d.debt).replace(",", " ") }} &#8381;</strong>
+                        </td>
+                        <td>
+                            <a href="/admin/residents/{{ d.id }}" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center text-success">Должников нет!</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

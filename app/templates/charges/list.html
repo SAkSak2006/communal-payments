@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+
+{% block title %}Начисления{% endblock %}
+{% block breadcrumb %}Начисления{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-end mb-4">
+    <div>
+        <h2 class="mb-1">Начисления</h2>
+        <p class="text-muted mb-0" style="font-size:.875rem;">Расчёт и управление начислениями по периодам</p>
+    </div>
+</div>
+
+{% set month_names = {1:'Январь',2:'Февраль',3:'Март',4:'Апрель',5:'Май',6:'Июнь',7:'Июль',8:'Август',9:'Сентябрь',10:'Октябрь',11:'Ноябрь',12:'Декабрь'} %}
+
+<!-- Period management -->
+<div class="card card-dashboard mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label">Год</label>
+                <select class="form-select" name="year">
+                    {% for y in range(2024, 2028) %}
+                    <option value="{{ y }}" {{ 'selected' if y == year }}>{{ y }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Месяц</label>
+                <select class="form-select" name="month">
+                    {% for m in range(1, 13) %}
+                    <option value="{{ m }}" {{ 'selected' if m == month }}>{{ month_names[m] }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-outline-primary w-100">
+                    <i class="bi bi-funnel"></i> Показать
+                </button>
+            </div>
+            <div class="col-md-2">
+                <a href="/admin/charges/calculate?year={{ year }}&month={{ month }}"
+                   class="btn btn-success w-100"
+                   onclick="return confirm('Рассчитать начисления за {{ '%02d'|format(month) }}.{{ year }}?')">
+                    <i class="bi bi-calculator"></i> Рассчитать
+                </a>
+            </div>
+            <div class="col-md-2">
+                {% if period and not period.is_closed %}
+                <a href="/admin/charges/close?year={{ year }}&month={{ month }}"
+                   class="btn btn-warning w-100"
+                   onclick="return confirm('Закрыть период {{ '%02d'|format(month) }}.{{ year }}? Это действие нельзя отменить.')">
+                    <i class="bi bi-lock"></i> Закрыть период
+                </a>
+                {% elif period and period.is_closed %}
+                <span class="btn btn-secondary w-100 disabled">
+                    <i class="bi bi-lock-fill"></i> Период закрыт
+                </span>
+                {% endif %}
+            </div>
+            <div class="col-md-2">
+                <a href="/admin/charges/notify?year={{ year }}&month={{ month }}"
+                   class="btn btn-info w-100 text-white"
+                   onclick="return confirm('Отправить уведомления о начислениях за {{ '%02d'|format(month) }}.{{ year }} всем жильцам в Telegram?')">
+                    <i class="bi bi-send"></i> Уведомить жильцов
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% if message %}
+<div class="alert alert-info">{{ message }}</div>
+{% endif %}
+
+<!-- Summary -->
+{% if charges %}
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="card card-dashboard">
+            <div class="card-body text-center">
+                <h6 class="text-muted">Всего начислений</h6>
+                <h3>{{ charges|length }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card card-dashboard">
+            <div class="card-body text-center">
+                <h6 class="text-muted">Общая сумма</h6>
+                <h3>{{ "{:,.2f}".format(total_amount).replace(",", " ") }} &#8381;</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card card-dashboard">
+            <div class="card-body text-center">
+                <h6 class="text-muted">Экспорт</h6>
+                <a href="/admin/reports/export?year={{ year }}&month={{ month }}" class="btn btn-outline-success">
+                    <i class="bi bi-file-earmark-excel"></i> Скачать Excel
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Table -->
+<div class="card card-dashboard">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Житель</th>
+                        <th>Лиц. счёт</th>
+                        <th>Адрес</th>
+                        <th>Услуга</th>
+                        <th>Потребление</th>
+                        <th>Сумма</th>
+                        <th>Квитанция</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% set ns = namespace(prev_resident='') %}
+                    {% for c in charges %}
+                    <tr>
+                        <td>{{ c.resident_name }}</td>
+                        <td><code>{{ c.personal_account }}</code></td>
+                        <td>{{ c.address }}</td>
+                        <td>{{ c.service_name }}</td>
+                        <td>{{ c.consumption }} {{ c.unit }}</td>
+                        <td><strong>{{ "{:,.2f}".format(c.amount).replace(",", " ") }}</strong> &#8381;</td>
+                        <td>
+                            {% if ns.prev_resident != c.resident_name %}
+                            <a href="/admin/charges/receipt/{{ c.resident_id }}?year={{ year }}&month={{ month }}"
+                               class="btn btn-sm btn-outline-danger" title="Скачать квитанцию PDF">
+                                <i class="bi bi-file-earmark-pdf"></i>
+                            </a>
+                            {% set ns.prev_resident = c.resident_name %}
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="text-center text-muted">
+                            Начислений за этот период нет. Нажмите «Рассчитать».
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

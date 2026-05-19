@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% block title %}Показания{% endblock %}
+{% block breadcrumb %}Показания{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-end mb-4">
+    <div>
+        <h2 class="mb-1">Показания счётчиков</h2>
+        <p class="text-muted mb-0" style="font-size:.875rem;">Сбор и проверка данных по приборам учёта</p>
+    </div>
+    <div>
+        <a href="/admin/readings/create" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i> Добавить показание
+        </a>
+    </div>
+</div>
+
+{% set month_names = {0:'Все месяцы',1:'Январь',2:'Февраль',3:'Март',4:'Апрель',5:'Май',6:'Июнь',7:'Июль',8:'Август',9:'Сентябрь',10:'Октябрь',11:'Ноябрь',12:'Декабрь'} %}
+
+<!-- Filter -->
+<div class="card card-dashboard mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-2">
+                <label class="form-label">Год</label>
+                <select class="form-select" name="year">
+                    <option value="0" {{ 'selected' if year == 0 }}>Все годы</option>
+                    {% for y in available_years %}
+                    <option value="{{ y }}" {{ 'selected' if y == year }}>{{ y }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Месяц</label>
+                <select class="form-select" name="month">
+                    <option value="0" {{ 'selected' if month == 0 }}>Все месяцы</option>
+                    {% for m in range(1, 13) %}
+                    <option value="{{ m }}" {{ 'selected' if m == month }}>{{ month_names[m] }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Статус</label>
+                <select class="form-select" name="validated">
+                    <option value="">Все</option>
+                    <option value="true" {{ 'selected' if validated == 'true' }}>Проверенные</option>
+                    <option value="false" {{ 'selected' if validated == 'false' }}>Непроверенные</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Поиск по жителю</label>
+                <input type="text" class="form-control" name="q" value="{{ q or '' }}" placeholder="ФИО или лицевой счёт...">
+            </div>
+            <div class="col-md-3 d-flex align-items-end gap-2">
+                <button type="submit" class="btn btn-primary flex-grow-1">
+                    <i class="bi bi-funnel"></i> Применить
+                </button>
+                <a href="/admin/readings" class="btn btn-outline-secondary">Сброс</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card card-dashboard">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Дата</th>
+                        <th>Житель</th>
+                        <th>Адрес</th>
+                        <th>Услуга</th>
+                        <th>Пред. показ.</th>
+                        <th>Текущее</th>
+                        <th>Потребление</th>
+                        <th>Источник</th>
+                        <th>Статус</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in readings %}
+                    <tr>
+                        <td>{{ r.reading_date.strftime('%d.%m.%Y') }}</td>
+                        <td>{{ r.resident_name }}</td>
+                        <td>{{ r.address_str }}</td>
+                        <td>{{ r.service_name }}</td>
+                        <td>{{ r.previous_value }}</td>
+                        <td><strong>{{ r.value }}</strong></td>
+                        <td>{{ r.consumption }}</td>
+                        <td>
+                            <span class="badge bg-{{ 'info' if r.source == 'telegram' else 'secondary' }}">
+                                {{ r.source }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if r.is_validated %}
+                            <span class="badge bg-success">Проверено</span>
+                            {% else %}
+                            <span class="badge bg-warning">Ожидает</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if not r.is_validated %}
+                            <a href="/admin/readings/{{ r.id }}/validate" class="btn btn-sm btn-success" title="Подтвердить">
+                                <i class="bi bi-check"></i>
+                            </a>
+                            <a href="/admin/readings/{{ r.id }}/reject" class="btn btn-sm btn-danger" title="Отклонить"
+                               onclick="return confirm('Отклонить показание?')">
+                                <i class="bi bi-x"></i>
+                            </a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="10" class="text-center text-muted">Показания не найдены</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% include "components/pagination.html" %}
+    </div>
+</div>
+{% endblock %}

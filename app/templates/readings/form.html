@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}Добавить показание{% endblock %}
+{% block breadcrumb %}Показания / Новое показание{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <h2 class="mb-1">Добавить показание</h2>
+    <p class="text-muted mb-0" style="font-size:.875rem;">Ввод показания прибора учёта</p>
+</div>
+
+<div class="card card-dashboard">
+    <div class="card-body">
+        <form method="post">
+            <div class="row g-3">
+                <div class="col-md-12">
+                    <label for="meter_id" class="form-label">Счётчик *</label>
+                    <select class="form-select" id="meter_id" name="meter_id" required
+                            onchange="updatePrevVal()">
+                        <option value="">-- Выберите счётчик --</option>
+                        {% for m in meters %}
+                        <option value="{{ m.id }}" data-last="{{ m.last_value }}">
+                            {{ m.display }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label for="value" class="form-label">Текущее показание *</label>
+                    <input type="number" step="0.001" class="form-control" id="value" name="value"
+                           required min="0.001" max="999999999">
+                    <div class="form-text">
+                        Предыдущее показание: <span id="prev-val">—</span>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <label for="period_year" class="form-label">Год *</label>
+                    <input type="number" class="form-control" id="period_year" name="period_year"
+                           required value="2026" min="2000" max="2100">
+                </div>
+                <div class="col-md-3">
+                    <label for="period_month" class="form-label">Месяц *</label>
+                    <input type="number" class="form-control" id="period_month" name="period_month"
+                           required value="5" min="1" max="12">
+                </div>
+            </div>
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check-lg"></i> Сохранить
+                </button>
+                <a href="/admin/readings" class="btn btn-secondary">Отмена</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function updatePrevVal() {
+    const select = document.getElementById('meter_id');
+    const option = select.options[select.selectedIndex];
+    const prevSpan = document.getElementById('prev-val');
+
+    if (option && option.dataset.last !== undefined && option.value !== '') {
+        const lastVal = parseFloat(option.dataset.last);
+        prevSpan.textContent = lastVal.toFixed(3).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+    } else {
+        prevSpan.textContent = '—';
+    }
+}
+</script>
+{% endblock %}

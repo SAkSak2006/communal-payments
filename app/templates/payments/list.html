@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Платежи{% endblock %}
+{% block breadcrumb %}Платежи{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-end mb-4">
+    <div>
+        <h2 class="mb-1">Платежи</h2>
+        <p class="text-muted mb-0" style="font-size:.875rem;">Учёт оплат за коммунальные услуги</p>
+    </div>
+    <a href="/admin/payments/create" class="btn btn-primary">
+        <i class="bi bi-plus-lg"></i> Записать оплату
+    </a>
+</div>
+
+<!-- Search -->
+<div class="card card-dashboard mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-10">
+                <input type="text" class="form-control" name="q" value="{{ q or '' }}"
+                       placeholder="Поиск по ФИО или лицевому счёту...">
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-outline-primary w-100">
+                    <i class="bi bi-search"></i> Найти
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card card-dashboard">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Дата</th>
+                        <th>Житель</th>
+                        <th>Лицевой счёт</th>
+                        <th>Сумма</th>
+                        <th>Способ</th>
+                        <th>Квитанция</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in payments %}
+                    <tr>
+                        <td>{{ p.id }}</td>
+                        <td>{{ p.payment_date.strftime('%d.%m.%Y') }}</td>
+                        <td>{{ p.resident_name }}</td>
+                        <td><code>{{ p.personal_account }}</code></td>
+                        <td><strong>{{ "{:,.2f}".format(p.amount).replace(",", " ") }}</strong> &#8381;</td>
+                        <td>{{ p.payment_method }}</td>
+                        <td>{{ p.receipt_number or '—' }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="text-center text-muted">Платежи не найдены</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% include "components/pagination.html" %}
+    </div>
+</div>
+{% endblock %}

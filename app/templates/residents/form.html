@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}{{ 'Редактировать' if resident else 'Добавить' }} жителя{% endblock %}
+{% block breadcrumb %}Жители / {{ 'Редактирование' if resident else 'Новый' }}{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <h2 class="mb-1">{{ 'Редактировать' if resident else 'Добавить' }} жителя</h2>
+    <p class="text-muted mb-0" style="font-size:.875rem;">{{ 'Изменение данных жителя' if resident else 'Регистрация нового жителя' }}</p>
+</div>
+
+<div class="card card-dashboard">
+    <div class="card-body">
+        <form method="post">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label for="full_name" class="form-label">ФИО *</label>
+                    <input type="text" class="form-control" id="full_name" name="full_name"
+                           value="{{ resident.full_name if resident else '' }}" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="personal_account" class="form-label">Лицевой счёт *</label>
+                    <input type="text" class="form-control" id="personal_account" name="personal_account"
+                           value="{{ resident.personal_account if resident else '' }}" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="phone" class="form-label">Телефон *</label>
+                    <input type="text" class="form-control" id="phone" name="phone"
+                           value="{{ resident.phone if resident else '' }}" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="is_verified" class="form-label">Статус</label>
+                    <select class="form-select" id="is_verified" name="is_verified">
+                        <option value="false" {{ 'selected' if not resident or not resident.is_verified }}>Не верифицирован</option>
+                        <option value="true" {{ 'selected' if resident and resident.is_verified }}>Верифицирован</option>
+                    </select>
+                </div>
+            </div>
+
+            <hr>
+            <h5>Адрес</h5>
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label for="city" class="form-label">Город *</label>
+                    <input type="text" class="form-control" id="city" name="city"
+                           value="{{ address.city if address else '' }}" required>
+                </div>
+                <div class="col-md-4">
+                    <label for="street" class="form-label">Улица *</label>
+                    <input type="text" class="form-control" id="street" name="street"
+                           value="{{ address.street if address else '' }}" required>
+                </div>
+                <div class="col-md-2">
+                    <label for="building" class="form-label">Дом *</label>
+                    <input type="text" class="form-control" id="building" name="building"
+                           value="{{ address.building if address else '' }}" required>
+                </div>
+                <div class="col-md-1">
+                    <label for="apartment" class="form-label">Кв. *</label>
+                    <input type="text" class="form-control" id="apartment" name="apartment"
+                           value="{{ address.apartment if address else '' }}" required>
+                </div>
+                <div class="col-md-2">
+                    <label for="area_sqm" class="form-label">Площадь (м²)</label>
+                    <input type="number" step="0.01" class="form-control" id="area_sqm" name="area_sqm"
+                           value="{{ address.area_sqm if address else '0' }}">
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check-lg"></i> Сохранить
+                </button>
+                <a href="/admin/residents" class="btn btn-secondary">Отмена</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
